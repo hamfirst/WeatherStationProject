@@ -1,0 +1,46 @@
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="UTF-8"> 
+        <title>Weather Station</title>
+        <script src="plotly-latest.min.js"></script>
+    </head>
+    <body>
+        <div id="plotdiv" style="width:80vw;height:80vh;"></div>
+        <script>
+
+            fetch('query.php')
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(json) {
+
+                    var data = [
+                        {
+                            x: json['t'],
+                            y: json['air_temp'],
+                            mode: "lines",
+                            name: "Air Temperature",
+                            type: 'scatter',
+                            line: {color: '#F47942'}
+                        },
+
+                        {
+                            x: json['t'],
+                            y: json['ground_temp'],
+                            mode: "lines",
+                            name: "Ground Temperature",
+                            type: 'scatter',
+                            line: {color: '#FFD039'}
+                        }
+                    ];
+
+                    Plotly.plot('plotdiv', data);
+                });    
+        </script>
+    </body>
+</html>
+
+
