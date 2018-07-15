@@ -10,6 +10,8 @@ if(!$db)
 
 $result = mysqli_query($db, 'SELECT * FROM samples');
 
+$num_rows = mysqli_num_rows($result);
+
 $t = array();
 $air_temp = array();
 $ground_temp = array();
@@ -18,7 +20,7 @@ $humidity = array();
 $air_conductivity = array();
 $light = array();
 
-if(mysqli_num_rows($result) > 0)
+if($num_rows > 0)
 {
     while($row = mysqli_fetch_assoc($result))
     {

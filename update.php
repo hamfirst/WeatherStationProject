@@ -1,11 +1,11 @@
 <?php
 
-$post_data = stream_get_contents(STDIN);
+$post_data = file_get_contents("php://input");
 $samples = json_decode($post_data);
 
-if(!is_array($samples))
+if(!is_array($samples) || count($samples) == 0)
 {
-    die("Invalid json data");
+    die("wtf Invalid json data " . $post_data);
 }
 
 require('databaseinfo.php');
@@ -18,17 +18,32 @@ if(!$db)
 
 $statement = $db->prepare("INSERT INTO samples (time, air_temp, ground_temp, pressure, humidity, air_conductivity, light) VALUES (?,?,?,?,?,?,?)");
 
-foreach($sample as &$samples)
+foreach($samples as $sample)
 {
+    $time = mysqli_real_escape_string($db, $sample->time);
+    $air_temp = mysqli_real_escape_string($db, $sample->air_temp);
+    $ground_temp = mysqli_real_escape_string($db, $sample->ground_temp);
+    $pressure = mysqli_real_escape_string($db, $sample->pressure);
+    $humidity = mysqli_real_escape_string($db, $sample->humidity);
+    $air_cond = mysqli_real_escape_string($db, $sample->air_conductivity);
+    $light = mysqli_real_escape_string($db, $sample->light);
+
     $statement->bind_param("sdddddd", 
-                            $sample["time"], 
-                            $sample["air_temp"], 
-                            $sample["ground_temp"], 
-                            $sample["pressure"],
-                            $sample["air_conductivity"],
-                            $sample["light"]);
-    $statement->execute();
+                            $time, 
+                            $air_temp, 
+                            $ground_temp, 
+                            $pressure,
+                            $humidity,
+                            $air_cond,
+                            $light);
+
+    if(!$statement->execute())
+    {
+      die("mysql insert failed");
+    }
 }
+
+mysqli_commit($db);
 
 echo "Ok";
 ?>

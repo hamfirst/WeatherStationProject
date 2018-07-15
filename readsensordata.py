@@ -4,6 +4,8 @@ from tsl2561 import TSL2561
 from bme680 import BME680
 from ds18b20_therm import DS18B20
 import bme680
+import MySQLdb
+
 
 tsl = TSL2561()
 bme = BME680(i2c_addr=bme680.I2C_ADDR_SECONDARY)
@@ -38,4 +40,22 @@ sample ["pressure"]=bme.data.pressure
 sample ["humidity"]=bme.data.humidity
 sample ["air_conductivity"]=bme.data.gas_resistance
 
-print(sample)
+db = MySQLdb.connect(host="localhost",
+                     user="ws_user",
+                     passwd="s34qhBvVYWu2",
+                     db="ws")
+cur = db.cursor()
+
+cur.execute(
+    """insert into samples (time, air_temp, ground_temp, pressure, humidity, air_conductivity, light)
+       values (now(), {0}, {1}, {2}, {3}, {4}, {5})""".format(
+           sample ["air_temp"],
+           sample ["ground_temp"],
+           sample ["pressure"],
+           sample ["humidity"],
+           sample ["air_conductivity"],
+           sample ["light"]))
+
+db.commit()
+
+db.close()
